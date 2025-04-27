@@ -64,7 +64,7 @@ func TestServer_LogRequest(t *testing.T) {
 
 	assert.JSONEq(t, `{
 		"msg":"handled request", "level":"info", "bytes_read":0,
-		"duration":"50ms", "resp_headers": {}, "size":0,
+		"duration":"50ms", "headers": {}, "size":0,
 		"status":0, "user_id":""
 	}`, buf.String())
 }
@@ -92,7 +92,7 @@ func TestServer_LogRequest_WithTrace(t *testing.T) {
 
 	assert.JSONEq(t, `{
 		"msg":"handled request", "level":"info", "bytes_read":0,
-		"duration":"50ms", "resp_headers": {}, "size":0,
+		"duration":"50ms", "headers": {}, "size":0,
 		"status":0, "user_id":"",
 		"traceID":"1234567890abcdef",
 		"spanID":"12345678"

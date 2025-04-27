@@ -786,6 +786,29 @@ func (s *Server) logRequest(
 	repl.Set("http.response.duration", duration)
 	repl.Set("http.response.duration_ms", duration.Seconds()*1e3) // multiply seconds to preserve decimal (see #4666)
 
+	userID, _ := repl.GetString("http.auth.user.id")
+
+	reqBodyLength := 0
+	if bodyReader != nil {
+		reqBodyLength = bodyReader.Length
+	}
+
+	extra := r.Context().Value(ExtraLogFieldsCtxKey).(*ExtraLogFields)
+
+	fieldCount := 6
+	fields := make([]zapcore.Field, 0, fieldCount+len(extra.fields))
+	fields = append(fields,
+		zap.Int("bytes_read", reqBodyLength),
+		zap.String("user_id", userID),
+		zap.Duration("duration", *duration),
+		zap.Int("size", wrec.Size()),
+		zap.Int("status", wrec.Status()),
+		zap.Object("headers", LoggableHTTPHeader{
+			Header:               wrec.Header(),
+			ShouldLogCredentials: shouldLogCredentials,
+		}))
+	fields = append(fields, extra.fields...)
+
 	loggers := []*zap.Logger{accLog}
 	if s.Logs != nil {
 		loggers = s.Logs.wrapLogger(accLog, r)
@@ -801,7 +824,6 @@ func (s *Server) logRequest(
 		logLevel = zapcore.ErrorLevel
 	}
 
-	var fields []zapcore.Field
 	for _, logger := range loggers {
 		c := logger.Check(logLevel, message)
 		if c == nil {

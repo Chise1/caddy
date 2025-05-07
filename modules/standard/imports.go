@@ -16,4 +16,5 @@ import (
 	_ "github.com/caddyserver/caddy/v2/modules/logging"
 	_ "github.com/caddyserver/caddy/v2/modules/metrics"
 	_ "github.com/mholt/caddy-ratelimit"
+	_ "github.com/pberkel/caddy-storage-redis"
 )
